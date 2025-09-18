@@ -17,7 +17,7 @@ namespace CareNest_Appointment.Application.Features.Commands.Delete
 
         public async Task HandleAsync(DeleteCommand command)
         {
-            // Lấy order theo ID
+            // Lấy appointment theo ID
             Appointment? appointment = await _unitOfWork.GetRepository<Appointment>().GetByIdAsync(command.Id)
                                               ?? throw new BadRequestException("Id: " + MessageConstant.NotFound);
 

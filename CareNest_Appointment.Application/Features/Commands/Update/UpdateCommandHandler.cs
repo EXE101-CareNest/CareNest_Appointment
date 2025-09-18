@@ -23,25 +23,25 @@ namespace CareNest_Appointment.Application.Features.Commands.Update
             Validate.ValidateUpdate(command);
 
             // Tìm để cập nhật
-            Appointment? order = await _unitOfWork.GetRepository<Appointment>().GetByIdAsync(command.Id)
+            Appointment? appointment = await _unitOfWork.GetRepository<Appointment>().GetByIdAsync(command.Id)
                ?? throw new BadRequestException("Id: " + MessageConstant.NotFound);
 
-            order.Note = command.Note;
-            order.Status = command.Status;
-            order.CustomerId = command.CustomerId;
-            order.PaymentMethod = command.PaymentMethod;
-            order.StartTime = command.StartTime;
-            order.StaffName = command.StaffName;
-            order.TotalAmount = command.TotalAmount;
-            order.Status = command.Status;
-            order.IsPaid = command.IsPaid;
-            order.BankId = command.BankId;
-            order.BankTransactionId = command.BankTransactionId;
-            order.UpdatedAt = TimeHelper.GetUtcNow();
+            appointment.Note = command.Note;
+            appointment.Status = command.Status;
+            appointment.CustomerId = command.CustomerId;
+            appointment.PaymentMethod = command.PaymentMethod;
+            appointment.StartTime = command.StartTime;
+            appointment.StaffName = command.StaffName;
+            appointment.TotalAmount = command.TotalAmount;
+            appointment.Status = command.Status;
+            appointment.IsPaid = command.IsPaid;
+            appointment.BankId = command.BankId;
+            appointment.BankTransactionId = command.BankTransactionId;
+            appointment.UpdatedAt = TimeHelper.GetUtcNow();
 
-            _unitOfWork.GetRepository<Appointment>().Update(order);
+            _unitOfWork.GetRepository<Appointment>().Update(appointment);
             await _unitOfWork.SaveAsync();
-            return order;
+            return appointment;
 
         }
     }

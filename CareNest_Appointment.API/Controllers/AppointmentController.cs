@@ -16,23 +16,23 @@ namespace CareNest_Appointment.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrderController : ControllerBase
+    public class AppointmentController : ControllerBase
     {
         private readonly IUseCaseDispatcher _dispatcher;
 
-        public OrderController(IUseCaseDispatcher dispatcher)
+        public AppointmentController(IUseCaseDispatcher dispatcher)
         {
             _dispatcher = dispatcher;
         }
 
         /// <summary>
-        /// Hiển thị toàn bộ danh sách đơn hàng hiện có trong hệ thống với phân trang và sắp xếp
+        /// Hiển thị toàn bộ danh sách cuộc hẹn  hiện có trong hệ thống với phân trang và sắp xếp
         /// </summary>
         /// <param name="pageIndex">trang hiện tại</param>
         /// <param name="pageSize">Số lượng phần tử trong trang</param>
         /// <param name="sortColumn">cột muốn sort: name, updateat,ownerid</param>
         /// <param name="sortDirection">cách sort asc or desc</param>
-        /// <returns>Danh sách đơn hàng</returns>
+        /// <returns>Danh sách cuộc hẹn </returns>
         [HttpGet]
         public async Task<IActionResult> GetPaging(
             [FromQuery] int pageIndex = 1,
@@ -52,10 +52,10 @@ namespace CareNest_Appointment.API.Controllers
         }
 
         /// <summary>
-        /// Hiển thị chi tiết đơn hàng theo id
+        /// Hiển thị chi tiết cuộc hẹn  theo id
         /// </summary>
-        /// <param name="id">Id đơn hàng</param>
-        /// <returns>chi tiết đơn hàng</returns>
+        /// <param name="id">Id cuộc hẹn </param>
+        /// <returns>chi tiết cuộc hẹn </returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
@@ -65,10 +65,10 @@ namespace CareNest_Appointment.API.Controllers
         }
 
         /// <summary>
-        /// tạo mới đơn hàng
+        /// tạo mới cuộc hẹn 
         /// </summary>
-        /// <param name="command">thông tin đơn hàng</param>
-        /// <returns>thông tin đơn hàng mới tạo xog</returns>
+        /// <param name="command">thông tin cuộc hẹn </param>
+        /// <returns>thông tin cuộc hẹn  mới tạo xog</returns>
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCommand command)
         {
@@ -78,9 +78,9 @@ namespace CareNest_Appointment.API.Controllers
         }
 
         /// <summary>
-        /// Cập nhật thông tin đơn hàng
+        /// Cập nhật thông tin cuộc hẹn 
         /// </summary>
-        /// <param name="id">Id đơn hàng</param>
+        /// <param name="id">Id cuộc hẹn </param>
         /// <param name="request">các thông tin cần sửa</param>
         /// <returns></returns>
         [HttpPut("{id}")]
@@ -108,7 +108,7 @@ namespace CareNest_Appointment.API.Controllers
         }
 
         /// <summary>
-        /// xoá đơn hàng
+        /// xoá cuộc hẹn 
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
