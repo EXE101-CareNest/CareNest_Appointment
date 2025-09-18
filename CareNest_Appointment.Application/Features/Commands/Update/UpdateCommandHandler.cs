@@ -36,6 +36,7 @@ namespace CareNest_Appointment.Application.Features.Commands.Update
             appointment.Status = command.Status;
             appointment.IsPaid = command.IsPaid;
             appointment.BankId = command.BankId;
+            appointment.ShopId = command.ShopId;
             appointment.BankTransactionId = command.BankTransactionId;
             appointment.UpdatedAt = TimeHelper.GetUtcNow();
 
