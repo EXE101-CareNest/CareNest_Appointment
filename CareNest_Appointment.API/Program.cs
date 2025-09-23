@@ -31,8 +31,7 @@ builder.Services.AddHttpContextAccessor();
 // Lấy DatabaseSettings từ configuration
 DatabaseSettings dbSettings = builder.Configuration.GetSection("DatabaseSettings").Get<DatabaseSettings>()!;
 dbSettings.Display();
-string connectionString = dbSettings?.GetConnectionString()
-                        ?? "Host=localhost;Port=5432;Database=appointment-dev;Username=exe-carenest-dev;Password=nghi123";
+string connectionString = dbSettings?.GetConnectionString();
 
 
 // Đăng ký DbContext với PostgreSQL

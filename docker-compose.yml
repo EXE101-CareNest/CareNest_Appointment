@@ -1,0 +1,18 @@
+services:
+ appointmentapi:
+      image: appointment-api-dev:latest
+      restart: always
+      build:
+        context: .
+        dockerfile: Dockerfile
+      ports:
+        - "8013:8080"
+      container_name: appointment-api-dev
+      environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+      networks:
+        carenest-network:
+          ipv4_address: 192.168.0.1
+networks:
+  carenest-network:
+    external: true

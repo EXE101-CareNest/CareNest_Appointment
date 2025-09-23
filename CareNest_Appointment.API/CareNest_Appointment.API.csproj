@@ -6,6 +6,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<DocumentationFile>bin\Debug\net8.0\CareNest_Appointment.API.xml</DocumentationFile>
+		<UserSecretsId>fedc553b-5960-4af0-9fd1-1c49e58c0c4b</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	</PropertyGroup>
 
 	<ItemGroup>	
