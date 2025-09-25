@@ -117,7 +117,10 @@ builder.Services.AddCors(options =>
         });
 });
 
-
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+});
 //Đăng ký lấy thông tin từ token
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
