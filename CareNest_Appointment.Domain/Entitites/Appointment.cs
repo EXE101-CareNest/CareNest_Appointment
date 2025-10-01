@@ -1,4 +1,4 @@
-﻿using CareNest_Appointment.Domain.Commons;
+﻿using CareNest_Appointment.Domain.Commons.Base;
 using CareNest_Appointment.Domain.Commons.Enum;
 
 namespace CareNest_Appointment.Domain.Entitites

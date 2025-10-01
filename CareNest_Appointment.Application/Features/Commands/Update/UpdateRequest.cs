@@ -7,7 +7,6 @@ namespace CareNest_Appointment.Application.Features.Commands.Update
         public string? CustomerId { get; set; }
         public string? ShopId { get; set; }
 
-        public double TotalAmount { get; set; } // tổng tiền
         public string? PaymentMethod { get; set; } // phương thức thanh toán
         public string? Note { get; set; } // ghi chú
 

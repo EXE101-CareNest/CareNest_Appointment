@@ -1,15 +1,14 @@
-﻿using CareNest_Appointment.Application.Interfaces.CQRS.Commands;
+﻿using CareNest_Appointment.Application.Features.Queries.GetAllPaging;
+using CareNest_Appointment.Application.Interfaces.CQRS.Commands;
 using CareNest_Appointment.Domain.Commons.Enum;
 using CareNest_Appointment.Domain.Entitites;
 
 namespace CareNest_Appointment.Application.Features.Commands.Create
 {
-    public class CreateCommand : ICommand<Appointment>
+    public class CreateCommand : ICommand<AppointmentResponse>
     {
         public string? CustomerId { get; set; }
         public string? ShopId { get; set; }
-
-        public double TotalAmount { get; set; } // tổng tiền
         public string? PaymentMethod { get; set; } // phương thức thanh toán
         public string? Note { get; set; } // ghi chú
 

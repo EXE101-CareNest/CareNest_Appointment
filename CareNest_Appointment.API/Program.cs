@@ -1,8 +1,10 @@
 ﻿using CareNest_Appointment.API.Middleware;
 using CareNest_Appointment.Application.Common;
+using CareNest_Appointment.Application.Common.Options;
 using CareNest_Appointment.Application.Features.Commands.Create;
 using CareNest_Appointment.Application.Features.Commands.Delete;
 using CareNest_Appointment.Application.Features.Commands.Update;
+using CareNest_Appointment.Application.Features.Commands.UpdateTotalAmount;
 using CareNest_Appointment.Application.Features.Queries.GetAllPaging;
 using CareNest_Appointment.Application.Features.Queries.GetById;
 using CareNest_Appointment.Application.Interfaces.CQRS;
@@ -88,12 +90,13 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 //command
-builder.Services.AddScoped<ICommandHandler<CreateCommand, Appointment>, CreateCommandHandler>();
-builder.Services.AddScoped<ICommandHandler<UpdateCommand, Appointment>, UpdateCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<CreateCommand, AppointmentResponse>, CreateCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<UpdateCommand, AppointmentResponse>, UpdateCommandHandler>();
 builder.Services.AddScoped<ICommandHandler<DeleteCommand>, DeleteCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<UpdateTotalAmountCommand, AppointmentResponse>, UpdateTotalAmountCommandHandler>();
 //query
 builder.Services.AddScoped<IQueryHandler<GetAllPagingQuery, PageResult<AppointmentResponse>>, GetAllPagingQueryHandler>();
-builder.Services.AddScoped<IQueryHandler<GetByIdQuery, Appointment>, GetByIdQueryHandler>();
+builder.Services.AddScoped<IQueryHandler<GetByIdQuery, AppointmentResponse>, GetByIdQueryHandler>();
 
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("JwtSettings")
@@ -121,8 +124,16 @@ builder.Services.Configure<RouteOptions>(options =>
 {
     options.LowercaseUrls = true;
 });
+// Đăng ký cấu hình APIServiceOption
+builder.Services.Configure<APIServiceOption>(
+    builder.Configuration.GetSection("APIService")
+);
+
 //Đăng ký lấy thông tin từ token
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IShopService, ShopService>();
+builder.Services.AddScoped<IAPIService, APIService>();
 
 //Đăng ký HttpClient
 //builder.Services.AddHttpClient<IAccountService, AccountService>(client =>

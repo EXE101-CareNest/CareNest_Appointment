@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CareNest_Appointment.Domain.Commons
+namespace CareNest_Appointment.Domain.Commons.Base
 {
     public abstract class BaseEntity
     {

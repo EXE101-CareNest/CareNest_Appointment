@@ -1,8 +1,8 @@
-﻿
-using CareNest_Appointment.Application.Common;
+﻿using CareNest_Appointment.Application.Common;
 using CareNest_Appointment.Application.Features.Commands.Create;
 using CareNest_Appointment.Application.Features.Commands.Delete;
 using CareNest_Appointment.Application.Features.Commands.Update;
+using CareNest_Appointment.Application.Features.Commands.UpdateTotalAmount;
 using CareNest_Appointment.Application.Features.Queries.GetAllPaging;
 using CareNest_Appointment.Application.Features.Queries.GetById;
 using CareNest_Appointment.Application.Interfaces.CQRS;
@@ -60,7 +60,7 @@ namespace CareNest_Appointment.API.Controllers
         public async Task<IActionResult> GetById(string id)
         {
             var query = new GetByIdQuery() { Id = id };
-            Appointment result = await _dispatcher.DispatchQueryAsync<GetByIdQuery, Appointment>(query);
+            AppointmentResponse result = await _dispatcher.DispatchQueryAsync<GetByIdQuery, AppointmentResponse>(query);
             return this.OkResponse(result, MessageConstant.SuccessGet);
         }
 
@@ -72,7 +72,7 @@ namespace CareNest_Appointment.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCommand command)
         {
-            Appointment result = await _dispatcher.DispatchAsync<CreateCommand, Appointment>(command);
+            AppointmentResponse result = await _dispatcher.DispatchAsync<CreateCommand, AppointmentResponse>(command);
 
             return this.OkResponse(result, MessageConstant.SuccessCreate);
         }
@@ -99,10 +99,9 @@ namespace CareNest_Appointment.API.Controllers
                StaffName = request.StaffName,
                StartTime = request.StartTime,
                ShopId = request.ShopId,
-               Status = request.Status,
-               TotalAmount = request.TotalAmount
+               Status = request.Status
             };
-            Appointment result = await _dispatcher.DispatchAsync<UpdateCommand, Appointment>(command);
+            AppointmentResponse result = await _dispatcher.DispatchAsync<UpdateCommand, AppointmentResponse>(command);
 
             return this.OkResponse(result, MessageConstant.SuccessUpdate);
         }
@@ -117,6 +116,25 @@ namespace CareNest_Appointment.API.Controllers
         {
             await _dispatcher.DispatchAsync(new DeleteCommand { Id = id });
             return this.OkResponse(MessageConstant.SuccessDelete);
+        }
+
+        /// <summary>
+        /// Cập nhật tổng tiền của cuộc hẹn
+        /// </summary>
+        /// <param name="id">Id cuộc hẹn</param>
+        /// <param name="totalAmount">Số tiền mới</param>
+        /// <returns></returns>
+        [HttpPut("{id}/total-amount")]
+        public async Task<IActionResult> UpdateTotalAmount(string id, [FromBody] double totalAmount)
+        {
+            var command = new UpdateTotalAmountCommand
+            {
+                Id = id,
+                TotalAmount = totalAmount
+            };
+            AppointmentResponse result = await _dispatcher.DispatchAsync<UpdateTotalAmountCommand, AppointmentResponse>(command);
+
+            return this.OkResponse(result, MessageConstant.SuccessUpdate);
         }
     }
 }
