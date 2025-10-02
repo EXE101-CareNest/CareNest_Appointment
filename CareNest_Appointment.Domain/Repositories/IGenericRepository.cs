@@ -223,5 +223,14 @@ namespace CareNest_Appointment.Domain.Repositories
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task DeleteRangeAsync(IEnumerable<T> entities);
         #endregion
+
+        #region Count Async
+        /// <summary>
+        /// Counts the number of records that match the specified condition asynchronously.
+        /// </summary>
+        /// <param name="predicate">The condition to filter records.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the count of records that match the condition.</returns>
+        Task<int> CountAsync(Expression<Func<T, bool>>? predicate);
+        #endregion
     }
 }

@@ -20,6 +20,8 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
 
             var orderByFunc = GetOrderByFunc(query.SortColumn, query.SortDirection);
 
+            var totalItems = await _unitOfWork.GetRepository<Appointment>().CountAsync(null);
+
             IEnumerable<AppointmentResponse> a = await _unitOfWork.GetRepository<Appointment>().FindAsync(
                 predicate: null,
                 orderBy: orderByFunc,
@@ -27,7 +29,7 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
                 pageSize: query.PageSize,
                 pageIndex: query.Index);
 
-            return new PageResult<AppointmentResponse>(a, 1, query.PageSize, query.Index);
+            return new PageResult<AppointmentResponse>(a, totalItems, query.PageSize, query.Index);
         }
 
 

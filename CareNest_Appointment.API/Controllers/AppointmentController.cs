@@ -7,7 +7,6 @@ using CareNest_Appointment.Application.Features.Queries.GetAllPaging;
 using CareNest_Appointment.Application.Features.Queries.GetById;
 using CareNest_Appointment.Application.Interfaces.CQRS;
 using CareNest_Appointment.Domain.Commons.Constant;
-using CareNest_Appointment.Domain.Entitites;
 using CareNest_Appointment.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -90,16 +89,16 @@ namespace CareNest_Appointment.API.Controllers
             var command = new UpdateCommand()
             {
                 Id = id,
-               CustomerId = request.CustomerId,
-               Note = request.Note,
-               PaymentMethod = request.PaymentMethod,
-               BankId = request.BankId,
-               BankTransactionId = request.BankTransactionId,
-               IsPaid = request.IsPaid,
-               StaffName = request.StaffName,
-               StartTime = request.StartTime,
-               ShopId = request.ShopId,
-               Status = request.Status
+                CustomerId = request.CustomerId,
+                Note = request.Note,
+                PaymentMethod = request.PaymentMethod,
+                BankId = request.BankId,
+                BankTransactionId = request.BankTransactionId,
+                IsPaid = request.IsPaid,
+                StaffName = request.StaffName,
+                StartTime = request.StartTime,
+                ShopId = request.ShopId,
+                Status = request.Status
             };
             AppointmentResponse result = await _dispatcher.DispatchAsync<UpdateCommand, AppointmentResponse>(command);
 

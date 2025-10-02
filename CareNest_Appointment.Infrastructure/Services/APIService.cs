@@ -2,13 +2,9 @@
 using CareNest_Appointment.Application.Common.Options;
 using CareNest_Appointment.Application.Interfaces.Services;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace CareNest_Appointment.Infrastructure.Services
 {
@@ -74,14 +70,16 @@ namespace CareNest_Appointment.Infrastructure.Services
                 };
             }
         }
-        public async Task<ResponseResult<T>> PostAsync<T>(string url, object data)
+        public async Task<ResponseResult<T>> PostAsync<T>(string serviceType, string endpoint, object data)
         {
             try
             {
+                string baseUrl = GetBaseUrl(serviceType);
+                string fullUrl = $"{baseUrl}{endpoint}";
                 string jsonContent = JsonSerializer.Serialize(data);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _httpClient.PostAsync(url, content);
+                HttpResponseMessage response = await _httpClient.PostAsync(fullUrl, content);
                 string jsonResponse = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -111,14 +109,16 @@ namespace CareNest_Appointment.Infrastructure.Services
                 };
             }
         }
-        public async Task<ResponseResult<T>> PutAsync<T>(string url, object data)
+        public async Task<ResponseResult<T>> PutAsync<T>(string serviceType, string endpoint, object data)
         {
             try
             {
+                string baseUrl = GetBaseUrl(serviceType);
+                string fullUrl = $"{baseUrl}{endpoint}";
                 string jsonContent = JsonSerializer.Serialize(data);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _httpClient.PutAsync(url, content);
+                HttpResponseMessage response = await _httpClient.PutAsync(fullUrl, content);
                 string jsonResponse = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -143,11 +143,13 @@ namespace CareNest_Appointment.Infrastructure.Services
                 };
             }
         }
-        public async Task<ResponseResult<T>> DeleteAsync<T>(string url)
+        public async Task<ResponseResult<T>> DeleteAsync<T>(string serviceType, string endpoint)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.DeleteAsync(url);
+                string baseUrl = GetBaseUrl(serviceType);
+                string fullUrl = $"{baseUrl}{endpoint}";
+                HttpResponseMessage response = await _httpClient.DeleteAsync(fullUrl);
                 string jsonResponse = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -180,6 +182,7 @@ namespace CareNest_Appointment.Infrastructure.Services
             return serviceType.ToLower() switch
             {
                 "shop" => _option.BaseUrlShop,
+                "appointmentdetail" => _option.BaseUrlAppointmentDetail,
                 _ => throw new ArgumentException($"Service type '{serviceType}' không hợp lệ!", nameof(serviceType))
             };
         }

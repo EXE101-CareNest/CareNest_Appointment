@@ -251,5 +251,26 @@ namespace CareNest_Appointment.Infrastructure.Persistences.Repository
 
             return await query.Select(selector).ToListAsync();
         }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate)
+        {
+            if (predicate == null)
+            {
+                return await _dbSet.CountAsync();
+            }
+            return await _dbSet.CountAsync(predicate);
+        }
+
+        public async Task<T?> FindSingleAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).SingleOrDefaultAsync();
+        }
+
+        public async Task<TResult?> FindSingleAsync<TResult>(
+            Expression<Func<T, bool>> predicate,
+            Expression<Func<T, TResult>> selector)
+        {
+            return await _dbSet.Where(predicate).Select(selector).SingleOrDefaultAsync();
+        }
     }
 }

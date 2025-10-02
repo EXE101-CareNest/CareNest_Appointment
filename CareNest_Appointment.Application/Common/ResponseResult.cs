@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CareNest_Appointment.Application.Common
+﻿namespace CareNest_Appointment.Application.Common
 {
     public class ResponseResult<T>
     {

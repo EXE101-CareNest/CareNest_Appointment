@@ -1,7 +1,5 @@
 ﻿using CareNest_Appointment.Application.Features.Commands.Create;
 using CareNest_Appointment.Application.Features.Commands.Update;
-using CareNest_Appointment.Domain.Commons.Constant;
-using System.Text.RegularExpressions;
 
 namespace CareNest_Appointment.Application.Exceptions.Validators
 {
@@ -35,8 +33,8 @@ namespace CareNest_Appointment.Application.Exceptions.Validators
         //    {
         //        throw new BadRequestException(MessageConstant.MissingPaymentMethod);
         //    }
-          
+
         //}
-        
+
     }
 }

@@ -5,7 +5,7 @@ namespace CareNest_Appointment.Domain.Entitites
 {
     public class Appointment : BaseEntity
     {
-        public string? CustomerId { get; set; } 
+        public string? CustomerId { get; set; }
         public string? ShopId { get; set; }
 
         public double TotalAmount { get; set; } // tổng tiền

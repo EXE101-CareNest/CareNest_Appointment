@@ -12,11 +12,13 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IShopService _shopService;
+        private readonly IAppointmentDetailService _appointmentDetailService;
 
-        public CreateCommandHandler(IUnitOfWork unitOfWork, IShopService shopService)
+        public CreateCommandHandler(IUnitOfWork unitOfWork, IShopService shopService, IAppointmentDetailService appointmentDetailService)
         {
             _unitOfWork = unitOfWork;
             _shopService = shopService;
+            _appointmentDetailService = appointmentDetailService;
         }
 
         public async Task<AppointmentResponse> HandleAsync(CreateCommand command)
@@ -43,6 +45,15 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
             };
             await _unitOfWork.GetRepository<Appointment>().AddAsync(appointment);
             await _unitOfWork.SaveAsync();
+
+            // Create appointment details
+            if (command.Details != null && command.Details.Any())
+            {
+                foreach (var detail in command.Details)
+                {
+                    await _appointmentDetailService.CreateAppointmentDetailAsync(appointment.Id, detail);
+                }
+            }
 
             return new AppointmentResponse
             {

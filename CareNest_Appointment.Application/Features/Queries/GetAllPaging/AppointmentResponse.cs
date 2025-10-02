@@ -1,4 +1,6 @@
 ﻿using CareNest_Appointment.Domain.Commons.Enum;
+using System.Collections.Generic;
+using CareNest_Appointment.Application.DTOs;
 
 namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
 {
@@ -26,5 +28,7 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
         public string? BankTransactionId { get; set; }
 
         public bool IsPaid { get; set; }
+
+        public List<AppointmentDetailDto> Details { get; set; } = new();
     }
 }
