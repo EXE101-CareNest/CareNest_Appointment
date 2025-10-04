@@ -1,7 +1,7 @@
 using CareNest_Appointment.Application.Features.Commands.Create;
 using CareNest_Appointment.Application.Interfaces.Services;
 using CareNest_Appointment.Infrastructure.ApiEndpoints;
-using Shared.Contracts;
+using CareNest_Appointment.Application.DTOs;
 
 namespace CareNest_Appointment.Infrastructure.Services
 {
@@ -14,7 +14,7 @@ namespace CareNest_Appointment.Infrastructure.Services
             _apiService = apiService;
         }
 
-        public async Task CreateAppointmentDetailAsync(string appointmentId, AppointmentDetailInput detail)
+        public async Task<AppointmentDetailDto> CreateAppointmentDetailAsync(string appointmentId, AppointmentDetailInput detail)
         {
             var request = new
             {
@@ -24,12 +24,34 @@ namespace CareNest_Appointment.Infrastructure.Services
                 detail.PetQuantity
             };
 
-            var result = await _apiService.PostAsync<object>("appointmentDetail", AppointmentDetailEndpoints.Create() ,request);
+            var result = await _apiService.PostAsync<AppointmentDetailDto>("appointmentDetail", AppointmentDetailEndpoints.Create(), request);
 
-            if (!result.IsSuccess)
+            if (!result.IsSuccess || result.Data == null)
             {
-                // Handle the error appropriately, maybe throw an exception or log it
                 throw new Exception($"Failed to create appointment detail: {result.Message}");
+            }
+
+            return result.Data.Data!;
+        }
+
+        public async Task<List<AppointmentDetailDto>> GetAppointmentDetailsAsync(string appointmentId)
+        {
+            try
+            {
+                var result = await _apiService.GetAsync<AppointmentDetailResponse>("appointmentDetail", AppointmentDetailEndpoints.GetByAppointmentIds(appointmentId));
+
+                if (!result.IsSuccess || result.Data == null)
+                {
+                    Console.WriteLine($"Failed to get appointment details: {result.Message}");
+                    return new List<AppointmentDetailDto>();
+                }
+
+                return result.Data.Data?.Items ?? new List<AppointmentDetailDto>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting appointment details: {ex.Message}");
+                return new List<AppointmentDetailDto>();
             }
         }
     }

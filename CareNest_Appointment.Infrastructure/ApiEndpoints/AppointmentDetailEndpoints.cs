@@ -2,7 +2,7 @@
 {
     public class AppointmentDetailEndpoints
     {
-        public static string Create() => "api/v1/appointment-details";
-        public static string GetByAppointmentIds() => "api/v1/appointment-details/by-appointment-ids";
+        public static string Create() => "/api/appointmentdetail";
+        public static string GetByAppointmentIds(string? id) => $"/api/appointmentdetail?pageIndex=1&pageSize=100&sortDirection=asc&searchTerm={id}";
     }
 }

@@ -11,12 +11,13 @@ namespace CareNest_Appointment.Application.Features.Queries.GetById
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IShopService _shopService;
+        private readonly IAppointmentDetailService _appointmentDetailService;
 
-
-        public GetByIdQueryHandler(IUnitOfWork unitOfWork, IShopService shopService)
+        public GetByIdQueryHandler(IUnitOfWork unitOfWork, IShopService shopService, IAppointmentDetailService appointmentDetailService)
         {
             _unitOfWork = unitOfWork;
             _shopService = shopService;
+            _appointmentDetailService = appointmentDetailService;
         }
 
         public async Task<AppointmentResponse> HandleAsync(GetByIdQuery query)
@@ -29,7 +30,7 @@ namespace CareNest_Appointment.Application.Features.Queries.GetById
             }
             //kiểm tra shop tồn tại
             var shop = await _shopService.GetShopById(appointment.ShopId);
-            return new AppointmentResponse
+            var response = new AppointmentResponse
             {
                 Id = appointment.Id,
                 CustomerId = appointment.CustomerId,
@@ -45,6 +46,11 @@ namespace CareNest_Appointment.Application.Features.Queries.GetById
                 ShopId = shop.Data!.Data!.Id,
                 ShopName = shop.Data!.Data!.Name
             };
+
+            // Load appointment details
+            response.Details = await _appointmentDetailService.GetAppointmentDetailsAsync(appointment.Id);
+
+            return response;
         }
     }
 }

@@ -19,9 +19,12 @@ using CareNest_Appointment.Infrastructure.Persistences.Database;
 using CareNest_Appointment.Infrastructure.Persistences.Repository;
 using CareNest_Appointment.Infrastructure.Services;
 using CareNest_Appointment.Infrastructure.UOW;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -110,6 +113,63 @@ builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<IAPIService, APIService>();
 builder.Services.AddScoped<IAppointmentDetailService, AppointmentDetailService>();
 
+// Add authentication services
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,  // Tạm thời tắt validate issuer
+        ValidateAudience = false, // Tạm thời tắt validate audience
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Headers.ContainsKey("Authorization"))
+            {
+                var bearer = context.Request.Headers["Authorization"].ToString();
+                Console.WriteLine($"Authorization Header: {bearer}");
+                if (bearer.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Token = bearer.Substring("Bearer ".Length).Trim();
+                    Console.WriteLine($"Extracted Token: {context.Token}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No Authorization Header Found");
+            }
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            var claims = context.Principal?.Claims;
+            if (claims != null)
+            {
+                Console.WriteLine("Token Claims:");
+                foreach (var claim in claims)
+                {
+                    Console.WriteLine($"Type: {claim.Type}, Value: {claim.Value}");
+                }
+            }
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        }
+    };
+});
 
 
 builder.Services.AddScoped<IUseCaseDispatcher, UseCaseDispatcher>();
@@ -134,6 +194,7 @@ app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

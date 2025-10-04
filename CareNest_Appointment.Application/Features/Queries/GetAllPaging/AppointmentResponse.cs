@@ -1,6 +1,5 @@
-﻿using CareNest_Appointment.Domain.Commons.Enum;
-using System.Collections.Generic;
-using CareNest_Appointment.Application.DTOs;
+﻿using CareNest_Appointment.Application.DTOs;
+using CareNest_Appointment.Domain.Commons.Enum;
 
 namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
 {

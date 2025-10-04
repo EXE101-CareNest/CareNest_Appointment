@@ -6,6 +6,7 @@ using CareNest_Appointment.Application.Interfaces.Services;
 using CareNest_Appointment.Application.Interfaces.UOW;
 using CareNest_Appointment.Domain.Commons.Constant;
 using CareNest_Appointment.Domain.Entitites;
+using Microsoft.AspNetCore.Http;
 using Shared.Helper;
 
 namespace CareNest_Appointment.Application.Features.Commands.Update
@@ -14,17 +15,19 @@ namespace CareNest_Appointment.Application.Features.Commands.Update
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IShopService _shopService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UpdateCommandHandler(IUnitOfWork unitOfWork, IShopService service)
+        public UpdateCommandHandler(IUnitOfWork unitOfWork, IShopService service, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _shopService = service;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<AppointmentResponse> HandleAsync(UpdateCommand command)
         {
             // Gọi validator để kiểm tra dữ liệu
-            Validate.ValidateUpdate(command);
+            //Validate.ValidateUpdate(command);
 
             // Tìm để cập nhật
             Appointment? appointment = await _unitOfWork.GetRepository<Appointment>().GetByIdAsync(command.Id)
@@ -46,6 +49,7 @@ namespace CareNest_Appointment.Application.Features.Commands.Update
             appointment.BankTransactionId = command.BankTransactionId;
             appointment.UpdatedAt = TimeHelper.GetUtcNow();
             appointment.ShopId = shop.Data!.Data!.Id;
+            appointment.UpdatedBy = _httpContextAccessor.HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == "userId")?.Value;
 
             _unitOfWork.GetRepository<Appointment>().Update(appointment);
             await _unitOfWork.SaveAsync();
