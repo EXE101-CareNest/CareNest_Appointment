@@ -33,6 +33,15 @@ namespace CareNest_Appointment.Infrastructure.Services
             catch (Exception ex)
             {
                 throw new Exception($"Error getting account by username: {ex.Message}");
+            }
+        }
+
+        public async Task<AccountDto> GetCurrentAccountAsync()
+        {
+            var sub = _httpContextAccessor.HttpContext?.User?.Claims?
+                .FirstOrDefault(c => c.Type == "sub")?.Value;
+
+
             return await GetAccountByUsernameAsync(sub);
         }
     }
