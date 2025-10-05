@@ -24,5 +24,10 @@
     <ProjectReference Include="..\CareNest_Appointment.Application\CareNest_Appointment.Application.csproj" />
     <ProjectReference Include="..\CareNest_Appointment.Domain\CareNest_Appointment.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Services\AccountService.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
 
 </Project>
