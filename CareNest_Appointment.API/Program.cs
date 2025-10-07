@@ -173,6 +173,17 @@ builder.Services.AddAuthentication(options =>
 
 
 builder.Services.AddScoped<IUseCaseDispatcher, UseCaseDispatcher>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+});
 
 
 
