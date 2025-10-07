@@ -12,5 +12,6 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
         public string? SortDirection { get; set; } // "asc" or "desc"
         public string? Status { get; set; }
         public string? CustomerId { get; set; } 
+        public string? ShopId { get; set; } 
     }
 }

@@ -39,6 +39,7 @@ namespace CareNest_Appointment.API.Controllers
             [FromQuery] string? sortColumn = null,
             [FromQuery] string? sortDirection = "asc",
             [FromQuery] string? customerId = null,
+            [FromQuery] string? shopId = null,
             [FromQuery] string? status = null)
         {
             var query = new GetAllPagingQuery()
