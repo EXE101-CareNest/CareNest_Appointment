@@ -23,7 +23,7 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
 
         public async Task<PageResult<AppointmentResponse>> HandleAsync(GetAllPagingQuery query)
         {
-            Expression<Func<AppointmentResponse, bool>>? predicate = null;
+            Expression<Func<Appointment, bool>>? predicate = null;
             if (!string.IsNullOrWhiteSpace(query.CustomerId))
             {
                 predicate = ad => ad.CustomerId.Contains(query.CustomerId);
@@ -39,7 +39,7 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
             var totalItems = await _unitOfWork.GetRepository<Appointment>().CountAsync(null);
 
             IEnumerable<AppointmentResponse> appointments = await _unitOfWork.GetRepository<Appointment>().FindAsync(
-                predicate: null,
+                predicate: predicate,
                 orderBy: orderByFunc,
                 selector: selector,
                 pageSize: query.PageSize,
