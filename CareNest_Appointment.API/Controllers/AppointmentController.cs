@@ -37,14 +37,18 @@ namespace CareNest_Appointment.API.Controllers
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? sortColumn = null,
-            [FromQuery] string? sortDirection = "asc")
+            [FromQuery] string? sortDirection = "asc",
+            [FromQuery] string? customerId = null,
+            [FromQuery] string? status = null)
         {
             var query = new GetAllPagingQuery()
             {
                 Index = pageIndex,
                 PageSize = pageSize,
                 SortColumn = sortColumn,
-                SortDirection = sortDirection
+                SortDirection = sortDirection,
+                Status = status,
+                CustomerId = customerId
             };
             var result = await _dispatcher.DispatchQueryAsync<GetAllPagingQuery, PageResult<AppointmentResponse>>(query);
             return this.OkResponse(result, MessageConstant.SuccessGet);

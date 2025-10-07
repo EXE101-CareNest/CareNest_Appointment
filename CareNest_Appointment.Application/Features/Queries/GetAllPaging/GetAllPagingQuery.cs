@@ -10,5 +10,7 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
         public int PageSize { get; set; }
         public string? SortColumn { get; set; } // "Name", "Note", "CreatedAt"
         public string? SortDirection { get; set; } // "asc" or "desc"
+        public string? Status { get; set; }
+        public string? CustomerId { get; set; } 
     }
 }
