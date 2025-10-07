@@ -173,6 +173,7 @@ builder.Services.AddAuthentication(options =>
 
 
 builder.Services.AddScoped<IUseCaseDispatcher, UseCaseDispatcher>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -202,6 +203,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
