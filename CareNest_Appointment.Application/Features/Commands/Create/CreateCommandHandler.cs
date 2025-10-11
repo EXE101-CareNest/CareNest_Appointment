@@ -78,6 +78,7 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
             {
                 Status = command.Status,
                 CustomerId = command.CustomerId,
+                CustomerPhone = command.CustomerPhone,
                 Note = command.Note,
                 PaymentMethod = command.PaymentMethod,
                 StaffName = command.StaffName,
@@ -116,6 +117,7 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
                 Id = appointment.Id,
                 CustomerId = appointment.CustomerId,
                 AccountName = customer.Data!.Data!.Username,
+                CustomerPhone = appointment.CustomerPhone,
                 Note = appointment.Note,
                 PaymentMethod = appointment.PaymentMethod,
                 StaffName = appointment.StaffName,

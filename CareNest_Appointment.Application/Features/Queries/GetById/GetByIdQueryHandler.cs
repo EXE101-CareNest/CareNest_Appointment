@@ -41,6 +41,7 @@ namespace CareNest_Appointment.Application.Features.Queries.GetById
                 Id = appointment.Id,
                 CustomerId = appointment.CustomerId,
                 AccountName = customer.Data!.Data!.Username,
+                CustomerPhone = appointment.CustomerPhone,
                 Note = appointment.Note,
                 PaymentMethod = appointment.PaymentMethod,
                 StaffName = appointment.StaffName,

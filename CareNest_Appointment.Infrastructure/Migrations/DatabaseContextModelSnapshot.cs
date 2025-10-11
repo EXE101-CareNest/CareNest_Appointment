@@ -42,6 +42,9 @@ namespace CareNest_Appointment.Infrastructure.Migrations
                     b.Property<string>("CustomerId")
                         .HasColumnType("text");
 
+                    b.Property<string>("CustomerPhone")
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset?>("DeleteAt")
                         .HasColumnType("timestamp with time zone");
 

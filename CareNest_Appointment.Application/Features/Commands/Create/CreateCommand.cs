@@ -7,6 +7,7 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
     public class CreateCommand : ICommand<AppointmentResponse>
     {
         public string? CustomerId { get; set; }
+        public string? CustomerPhone { get; set; }
         public string? ShopId { get; set; }
         public string? PaymentMethod { get; set; } // phương thức thanh toán
         public string? Note { get; set; } // ghi chú
