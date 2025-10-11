@@ -10,6 +10,7 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
         /// </summary>
         public string? Id { get; set; }
         public string? CustomerId { get; set; }
+        public string? AccountName { get; set; }
         public string? ShopId { get; set; }
         public string? ShopName { get; set; }
         public double TotalAmount { get; set; } // tổng tiền

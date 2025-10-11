@@ -4,6 +4,8 @@
     {
         public string BaseUrlShop { get; set; } = string.Empty;
         public string BaseUrlAppointmentDetail { get; set; } = string.Empty;
+        public string BaseUrlAuthorize { get; set; } = string.Empty;
+        public string BaseUrlAddress { get; set; } = string.Empty;
     }
 }
 

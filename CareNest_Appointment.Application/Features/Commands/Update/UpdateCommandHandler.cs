@@ -1,5 +1,4 @@
 ﻿using CareNest_Appointment.Application.Exceptions;
-using CareNest_Appointment.Application.Exceptions.Validators;
 using CareNest_Appointment.Application.Features.Queries.GetAllPaging;
 using CareNest_Appointment.Application.Interfaces.CQRS.Commands;
 using CareNest_Appointment.Application.Interfaces.Services;

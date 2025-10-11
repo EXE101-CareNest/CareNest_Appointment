@@ -183,6 +183,7 @@ namespace CareNest_Appointment.Infrastructure.Services
             {
                 "shop" => _option.BaseUrlShop,
                 "appointmentdetail" => _option.BaseUrlAppointmentDetail,
+                "authorize" => _option.BaseUrlAuthorize,
                 _ => throw new ArgumentException($"Service type '{serviceType}' không hợp lệ!", nameof(serviceType))
             };
         }

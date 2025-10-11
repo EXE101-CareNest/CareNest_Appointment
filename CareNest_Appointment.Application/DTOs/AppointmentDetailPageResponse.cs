@@ -1,5 +1,3 @@
-using CareNest_Appointment.Application.Common;
-
 namespace CareNest_Appointment.Application.DTOs
 {
     public class AppointmentDetailPageResponse

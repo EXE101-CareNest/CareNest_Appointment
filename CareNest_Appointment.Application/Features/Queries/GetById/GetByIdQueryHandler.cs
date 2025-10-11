@@ -12,12 +12,14 @@ namespace CareNest_Appointment.Application.Features.Queries.GetById
         private readonly IUnitOfWork _unitOfWork;
         private readonly IShopService _shopService;
         private readonly IAppointmentDetailService _appointmentDetailService;
+        private readonly IAuthorizeService _authorizeService;
 
-        public GetByIdQueryHandler(IUnitOfWork unitOfWork, IShopService shopService, IAppointmentDetailService appointmentDetailService)
+        public GetByIdQueryHandler(IUnitOfWork unitOfWork, IShopService shopService, IAppointmentDetailService appointmentDetailService, IAuthorizeService authorizeService)
         {
             _unitOfWork = unitOfWork;
             _shopService = shopService;
             _appointmentDetailService = appointmentDetailService;
+            _authorizeService = authorizeService;
         }
 
         public async Task<AppointmentResponse> HandleAsync(GetByIdQuery query)
@@ -30,10 +32,15 @@ namespace CareNest_Appointment.Application.Features.Queries.GetById
             }
             //kiểm tra shop tồn tại
             var shop = await _shopService.GetShopById(appointment.ShopId);
+            
+            //kiểm tra customer tồn tại qua authorize service
+            var customer = await _authorizeService.GetAccountById(appointment.CustomerId);
+            
             var response = new AppointmentResponse
             {
                 Id = appointment.Id,
                 CustomerId = appointment.CustomerId,
+                AccountName = customer.Data!.Data!.Username,
                 Note = appointment.Note,
                 PaymentMethod = appointment.PaymentMethod,
                 StaffName = appointment.StaffName,

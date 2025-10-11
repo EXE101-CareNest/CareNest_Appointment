@@ -1,5 +1,4 @@
 ﻿using CareNest_Appointment.Application.DTOs;
-using CareNest_Appointment.Application.Exceptions.Validators;
 using CareNest_Appointment.Application.Features.Queries.GetAllPaging;
 using CareNest_Appointment.Application.Interfaces.CQRS.Commands;
 using CareNest_Appointment.Application.Interfaces.Services;
@@ -16,13 +15,15 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
         private readonly IUnitOfWork _unitOfWork;
         private readonly IShopService _shopService;
         private readonly IAppointmentDetailService _appointmentDetailService;
+        private readonly IAuthorizeService _authorizeService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CreateCommandHandler(IUnitOfWork unitOfWork, IShopService shopService, IAppointmentDetailService appointmentDetailService, IHttpContextAccessor httpContextAccessor)
+        public CreateCommandHandler(IUnitOfWork unitOfWork, IShopService shopService, IAppointmentDetailService appointmentDetailService, IAuthorizeService authorizeService, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _shopService = shopService;
             _appointmentDetailService = appointmentDetailService;
+            _authorizeService = authorizeService;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -70,6 +71,9 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
             //kiểm tra shop tồn tại
             var shop = await _shopService.GetShopById(command.ShopId);
 
+            //kiểm tra customer tồn tại qua authorize service
+            var customer = await _authorizeService.GetAccountById(command.CustomerId);
+
             Appointment appointment = new()
             {
                 Status = command.Status,
@@ -102,7 +106,7 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
                     totalAmount += createdDetail.TotalAmount;
                 }
             }
-            
+
             appointment.TotalAmount = (double)totalAmount;
             await _unitOfWork.GetRepository<Appointment>().UpdateAsync(appointment);
             await _unitOfWork.SaveAsync();
@@ -111,6 +115,7 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
             {
                 Id = appointment.Id,
                 CustomerId = appointment.CustomerId,
+                AccountName = customer.Data!.Data!.Username,
                 Note = appointment.Note,
                 PaymentMethod = appointment.PaymentMethod,
                 StaffName = appointment.StaffName,

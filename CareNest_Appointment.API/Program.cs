@@ -112,6 +112,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<IAPIService, APIService>();
 builder.Services.AddScoped<IAppointmentDetailService, AppointmentDetailService>();
+builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
 
 // Add authentication services
 builder.Services.AddAuthentication(options =>

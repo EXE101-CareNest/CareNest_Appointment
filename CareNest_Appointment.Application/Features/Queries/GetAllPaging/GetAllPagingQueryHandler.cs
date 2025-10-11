@@ -13,12 +13,14 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAppointmentDetailService _appointmentDetailService;
         private readonly IShopService _shopService;
+        private readonly IAuthorizeService _authorizeService;
 
-        public GetAllPagingQueryHandler(IUnitOfWork unitOfWork, IAppointmentDetailService appointmentDetailService, IShopService shopService)
+        public GetAllPagingQueryHandler(IUnitOfWork unitOfWork, IAppointmentDetailService appointmentDetailService, IShopService shopService, IAuthorizeService authorizeService)
         {
             _unitOfWork = unitOfWork;
             _appointmentDetailService = appointmentDetailService;
             _shopService = shopService;
+            _authorizeService = authorizeService;
         }
 
         public async Task<PageResult<AppointmentResponse>> HandleAsync(GetAllPagingQuery query)
@@ -80,6 +82,25 @@ namespace CareNest_Appointment.Application.Features.Queries.GetAllPaging
                     {
                         Console.WriteLine($"Error loading details for shop {appointment.Id}: {ex.Message}");
                         appointment.ShopName = null;
+                    }
+                }
+            }
+            
+            // Load account name for each appointment
+            foreach (var appointment in appointmentsList)
+            {
+                if (!string.IsNullOrEmpty(appointment.CustomerId))
+                {
+                    try
+                    {
+                        var customer = await _authorizeService.GetAccountById(appointment.CustomerId);
+                        appointment.AccountName = customer.Data!.Data!.Username;
+                        Console.WriteLine($"Account name for appointment {appointment.Id}: {appointment.AccountName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error loading account name for appointment {appointment.Id}: {ex.Message}");
+                        appointment.AccountName = null;
                     }
                 }
             }
