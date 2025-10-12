@@ -184,6 +184,7 @@ namespace CareNest_Appointment.Infrastructure.Services
                 "shop" => _option.BaseUrlShop,
                 "appointmentdetail" => _option.BaseUrlAppointmentDetail,
                 "authorize" => _option.BaseUrlAuthorize,
+                "email" => _option.BaseUrlAuthorize, // Email service cũng sử dụng authorize base URL
                 _ => throw new ArgumentException($"Service type '{serviceType}' không hợp lệ!", nameof(serviceType))
             };
         }

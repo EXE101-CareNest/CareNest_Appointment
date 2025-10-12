@@ -16,14 +16,16 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
         private readonly IShopService _shopService;
         private readonly IAppointmentDetailService _appointmentDetailService;
         private readonly IAuthorizeService _authorizeService;
+        private readonly IEmailService _emailService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CreateCommandHandler(IUnitOfWork unitOfWork, IShopService shopService, IAppointmentDetailService appointmentDetailService, IAuthorizeService authorizeService, IHttpContextAccessor httpContextAccessor)
+        public CreateCommandHandler(IUnitOfWork unitOfWork, IShopService shopService, IAppointmentDetailService appointmentDetailService, IAuthorizeService authorizeService, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _shopService = shopService;
             _appointmentDetailService = appointmentDetailService;
             _authorizeService = authorizeService;
+            _emailService = emailService;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -111,6 +113,34 @@ namespace CareNest_Appointment.Application.Features.Commands.Create
             appointment.TotalAmount = (double)totalAmount;
             await _unitOfWork.GetRepository<Appointment>().UpdateAsync(appointment);
             await _unitOfWork.SaveAsync();
+
+            // Gửi email xác nhận cho khách hàng
+            try
+            {
+                var emailResult = await _emailService.SendAppointmentConfirmationEmailAsync(
+                    appointment.CustomerId!,
+                    customer.Data!.Data!.Username,
+                    shop.Data!.Data!.Name,
+                    appointment.Id,
+                    appointment.StartTime.ToString("dd/MM/yyyy HH:mm"),
+                    appointment.TotalAmount,
+                    createdDetails.Cast<object>().ToList()
+                );
+
+                if (!emailResult.IsSuccess)
+                {
+                    Console.WriteLine($"Failed to send confirmation email: {emailResult.Message}");
+                }
+                else
+                {
+                    Console.WriteLine($"Confirmation email sent successfully to {customer.Data.Data.Username}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending confirmation email: {ex.Message}");
+                // Không throw exception để không ảnh hưởng đến việc tạo appointment
+            }
 
             return new AppointmentResponse
             {

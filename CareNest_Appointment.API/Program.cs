@@ -113,6 +113,7 @@ builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<IAPIService, APIService>();
 builder.Services.AddScoped<IAppointmentDetailService, AppointmentDetailService>();
 builder.Services.AddScoped<IAuthorizeService, AuthorizeService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add authentication services
 builder.Services.AddAuthentication(options =>
