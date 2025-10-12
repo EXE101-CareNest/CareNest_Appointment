@@ -26,11 +26,8 @@ namespace CareNest_Appointment.Infrastructure.Services
                 string subject = $"Xác nhận đặt lịch tại {shopName}";
                 string htmlContent = GenerateAppointmentConfirmationHtml(customerName, shopName, appointmentId, startTime, totalAmount, details);
 
-                var requestBody = new { html = htmlContent };
-
-                // Gọi authorize API trực tiếp với HttpClient để xử lý response không phải JSON
-                var jsonContent = System.Text.Json.JsonSerializer.Serialize(requestBody);
-                var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+                // Gọi authorize API trực tiếp với HttpClient - gửi HTML content trực tiếp
+                var content = new StringContent(htmlContent, System.Text.Encoding.UTF8, "text/html");
                 
                 var endpoint = $"{_apiOptions.BaseUrlAuthorize}{AuthorizeEndpoint.SendEmail(customerId, subject)}";
                 
@@ -39,7 +36,7 @@ namespace CareNest_Appointment.Infrastructure.Services
                 Console.WriteLine($"Endpoint: {endpoint}");
                 Console.WriteLine($"CustomerId: {customerId}");
                 Console.WriteLine($"Subject: {subject}");
-                Console.WriteLine($"JSON Request Body: {jsonContent}");
+                Console.WriteLine($"HTML Content (first 200 chars): {htmlContent.Substring(0, Math.Min(200, htmlContent.Length))}...");
                 Console.WriteLine($"HTML Content Length: {htmlContent.Length} characters");
                 
                 var response = await _httpClient.PostAsync(endpoint, content);
@@ -78,7 +75,25 @@ namespace CareNest_Appointment.Infrastructure.Services
 
         private string GenerateAppointmentConfirmationHtml(string customerName, string shopName, string appointmentId, string startTime, double totalAmount, List<object> details)
         {
-            var detailsHtml = string.Join("", details.Select(d => $"<li>{d}</li>"));
+            var detailsHtml = string.Join("", details.Select(d => 
+            {
+                // Parse AppointmentDetailDto từ object
+                var detailJson = System.Text.Json.JsonSerializer.Serialize(d);
+                var detailElement = System.Text.Json.JsonDocument.Parse(detailJson).RootElement;
+                
+                var serviceDetailName = detailElement.TryGetProperty("ServiceDetailName", out var nameProp) ? nameProp.GetString() : "Dịch vụ";
+                var petQuantity = detailElement.TryGetProperty("PetQuantity", out var qtyProp) ? qtyProp.GetInt32() : 1;
+                var note = detailElement.TryGetProperty("Note", out var noteProp) ? noteProp.GetString() : "Không có ghi chú";
+                var totalAmount = detailElement.TryGetProperty("TotalAmount", out var amountProp) ? amountProp.GetDecimal() : 0;
+                
+                return $@"
+                    <tr>
+                        <td>{serviceDetailName}</td>
+                        <td>{petQuantity}</td>
+                        <td>{note}</td>
+                        <td>{totalAmount:N0} VNĐ</td>
+                    </tr>";
+            }));
 
             return $@"
 <!DOCTYPE html>
@@ -94,6 +109,10 @@ namespace CareNest_Appointment.Infrastructure.Services
         .info-table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
         .info-table th, .info-table td {{ border: 1px solid #ddd; padding: 12px; text-align: left; }}
         .info-table th {{ background-color: #4CAF50; color: white; }}
+        .details-table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+        .details-table th, .details-table td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+        .details-table th {{ background-color: #f2f2f2; font-weight: bold; }}
+        .details-table tr:nth-child(even) {{ background-color: #f9f9f9; }}
         .total {{ font-weight: bold; font-size: 18px; color: #4CAF50; }}
         .footer {{ text-align: center; margin-top: 20px; color: #666; }}
     </style>
@@ -129,9 +148,19 @@ namespace CareNest_Appointment.Infrastructure.Services
             </table>
 
             <h3>📝 Chi tiết dịch vụ:</h3>
-            <ul>
-                {detailsHtml}
-            </ul>
+            <table class='details-table'>
+                <thead>
+                    <tr>
+                        <th>Dịch vụ</th>
+                        <th>Số lượng thú cưng</th>
+                        <th>Ghi chú</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {detailsHtml}
+                </tbody>
+            </table>
 
             <p><strong>Lưu ý:</strong> Vui lòng giữ mã đặt lịch này để tra cứu thông tin. Chúng tôi sẽ liên hệ với bạn trước thời gian hẹn để xác nhận.</p>
             
@@ -140,7 +169,7 @@ namespace CareNest_Appointment.Infrastructure.Services
             <div class='footer'>
                 <p>Trân trọng,<br>
                 <strong>Đội ngũ {shopName}</strong></p>
-                <p>📞 Hotline: 1900-xxxx | 📧 Email: support@carenest.com</p>
+                <p>📞 Hotline: 1900-12345 | 📧 Email: trungksdoa@9718428.brevosend.com</p>
             </div>
         </div>
     </div>
