@@ -1,1 +1,0 @@
-web: dotnet CareNest_Appointment.dll --urls=http://*:$PORT
