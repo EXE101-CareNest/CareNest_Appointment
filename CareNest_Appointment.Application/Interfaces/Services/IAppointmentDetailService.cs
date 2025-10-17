@@ -7,5 +7,6 @@ namespace CareNest_Appointment.Application.Interfaces.Services
     {
         Task<AppointmentDetailDto> CreateAppointmentDetailAsync(string appointmentId, AppointmentDetailInput detail);
         Task<List<AppointmentDetailDto>> GetAppointmentDetailsAsync(string appointmentId);
+        Task<AppointmentDetailDashboardDto> GetDashboardAsync(string? shopId, string? fromDate, string? toDate, int? top);
     }
 }
