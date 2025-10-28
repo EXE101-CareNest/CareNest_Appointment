@@ -205,6 +205,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+app.UseRouting();
 app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
