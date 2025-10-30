@@ -40,12 +40,13 @@ string connectionString = dbSettings?.GetConnectionString();
 
 // Đăng ký DbContext với PostgreSQL
 builder.Services.AddDbContext<DatabaseContext>(options =>
-    options.UseNpgsql(connectionString, npgsqlOptions =>
+    options.UseNpgsql(connectionString + ";Pooling=true;Maximum Pool Size=5;Minimum Pool Size=0;Timeout=15;", npgsqlOptions =>
     {
         npgsqlOptions.EnableRetryOnFailure(
             maxRetryCount: 5,
             maxRetryDelay: TimeSpan.FromSeconds(5),
             errorCodesToAdd: null);
+        // npgsqlOptions.CommandTimeout(60); // uncomment nếu cần
     }));
 
 builder.Services.AddTransient<DatabaseSeeder>();
@@ -194,7 +195,8 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+var swaggerEnabled = app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("Swagger:Enabled");
+if (swaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -202,7 +204,11 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    context.Database.Migrate();
+    var runMigrations = Environment.GetEnvironmentVariable("RUN_MIGRATIONS");
+    if (!string.IsNullOrWhiteSpace(runMigrations) && runMigrations.Equals("true", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Database.Migrate();
+    }
 }
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
