@@ -9,6 +9,15 @@ namespace CareNest_Appointment.Application.DTOs
         // Top-level enrichment when filtering by a specific shop
         public string? ShopId { get; set; }
         public string? ShopName { get; set; }
+
+        // High-level appointment counts for dashboard
+        public int TotalAppointments { get; set; }
+        public int PendingAppointments { get; set; }
+        public int ProcessingAppointments { get; set; }
+        public int FinishedAppointments { get; set; }
+
+        // Total revenue (sum of appointment TotalAmount) for current filter
+        public double TotalRevenue { get; set; }
     }
 
     public class ServiceDetailStatDto
@@ -37,6 +46,7 @@ namespace CareNest_Appointment.Application.DTOs
         public string? ShopName { get; set; }
         public int TotalServiceDetailCount { get; set; }
         public int TotalServiceCount { get; set; }
+        public double TotalRevenue { get; set; }
     }
 }
 

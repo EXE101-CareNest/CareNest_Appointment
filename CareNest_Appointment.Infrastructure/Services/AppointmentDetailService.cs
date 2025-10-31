@@ -1,7 +1,10 @@
 using CareNest_Appointment.Application.DTOs;
 using CareNest_Appointment.Application.Features.Commands.Create;
 using CareNest_Appointment.Application.Interfaces.Services;
+using CareNest_Appointment.Application.Interfaces.UOW;
 using CareNest_Appointment.Infrastructure.ApiEndpoints;
+using CareNest_Appointment.Domain.Commons.Enum;
+using CareNest_Appointment.Domain.Entitites;
 using System.Linq;
 
 namespace CareNest_Appointment.Infrastructure.Services
@@ -10,11 +13,13 @@ namespace CareNest_Appointment.Infrastructure.Services
     {
         private readonly IAPIService _apiService;
         private readonly IShopService _shopService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AppointmentDetailService(IAPIService apiService, IShopService shopService)
+        public AppointmentDetailService(IAPIService apiService, IShopService shopService, IUnitOfWork unitOfWork)
         {
             _apiService = apiService;
             _shopService = shopService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<AppointmentDetailDto> CreateAppointmentDetailAsync(string appointmentId, AppointmentDetailInput detail)
@@ -238,6 +243,12 @@ namespace CareNest_Appointment.Infrastructure.Services
                 }
             }
 
+            // Compute high-level appointment counts (total, pending, processing, finished)
+            await EnrichAppointmentStatusCounts(dashboard, shopId, fromDate, toDate);
+
+            // Compute revenue (total) and per-shop revenue when needed
+            await EnrichRevenueAsync(dashboard, shopId, fromDate, toDate);
+
             return dashboard;
         }
 
@@ -261,5 +272,111 @@ namespace CareNest_Appointment.Infrastructure.Services
             public string? ServiceCategoryId { get; set; }
             public bool Status { get; set; }
         }
+
+        private async Task EnrichRevenueAsync(
+            AppointmentDetailDashboardDto dashboard,
+            string? shopId,
+            string? fromDate,
+            string? toDate)
+        {
+            var repo = _unitOfWork.GetRepository<Appointment>();
+
+            // Overall total revenue per current filter
+            var basePredicate = AppointmentDashboardFilters.BuildPredicate(shopId, fromDate, toDate);
+            var baseQuery = repo.Entities.Where(basePredicate);
+            dashboard.TotalRevenue = await Task.Run(() => baseQuery.Sum(a => (double)a.TotalAmount));
+
+            // If no shopId passed, compute revenue per each shop
+            if (string.IsNullOrWhiteSpace(shopId))
+            {
+                var dateOnlyPredicate = AppointmentDashboardFilters.BuildPredicate(null, fromDate, toDate);
+                var grouped = repo.Entities
+                    .Where(dateOnlyPredicate)
+                    .GroupBy(a => a.ShopId)
+                    .Select(g => new { ShopId = g.Key, Total = g.Sum(x => x.TotalAmount) })
+                    .ToList();
+
+                if (grouped.Count > 0)
+                {
+                    dashboard.ShopStats ??= new List<ShopStatDto>();
+                    dashboard.ShopStats.Clear();
+                    foreach (var g in grouped)
+                    {
+                        var stat = new ShopStatDto
+                        {
+                            ShopId = g.ShopId,
+                            TotalRevenue = g.Total
+                        };
+                        if (!string.IsNullOrWhiteSpace(g.ShopId))
+                        {
+                            try
+                            {
+                                var shop = await _shopService.GetShopById(g.ShopId);
+                                if (shop.IsSuccess && shop.Data?.Data != null)
+                                {
+                                    stat.ShopName = shop.Data.Data.Name;
+                                }
+                            }
+                            catch { }
+                        }
+                        dashboard.ShopStats.Add(stat);
+                    }
+                }
+            }
+        }
+        private async Task EnrichAppointmentStatusCounts(
+            AppointmentDetailDashboardDto dashboard,
+            string? shopId,
+            string? fromDate,
+            string? toDate)
+        {
+            var basePredicate = AppointmentDashboardFilters.BuildPredicate(shopId, fromDate, toDate);
+
+            // Total
+            var total = await _unitOfWork.GetRepository<Appointment>().CountAsync(basePredicate);
+
+            // Status-specific using explicit predicate builds for EF translation
+            var pending = await _unitOfWork.GetRepository<Appointment>()
+                .CountAsync(AppointmentDashboardFilters.BuildPredicate(shopId, fromDate, toDate, AppointmentStatus.Pending));
+            var processing = await _unitOfWork.GetRepository<Appointment>()
+                .CountAsync(AppointmentDashboardFilters.BuildPredicate(shopId, fromDate, toDate, AppointmentStatus.Processing));
+            var finished = await _unitOfWork.GetRepository<Appointment>()
+                .CountAsync(AppointmentDashboardFilters.BuildPredicate(shopId, fromDate, toDate, AppointmentStatus.Finished));
+
+            dashboard.TotalAppointments = total;
+            dashboard.PendingAppointments = pending;
+            dashboard.ProcessingAppointments = processing;
+            dashboard.FinishedAppointments = finished;
+        }
     }
+
+    internal static class AppointmentDashboardFilters
+    {
+        public static System.Linq.Expressions.Expression<Func<Appointment, bool>> BuildPredicate(
+            string? shopId,
+            string? fromDate,
+            string? toDate,
+            AppointmentStatus? statusFilter = null)
+        {
+            DateTimeOffset? from = null;
+            DateTimeOffset? to = null;
+
+            if (!string.IsNullOrWhiteSpace(fromDate) && DateTimeOffset.TryParse(fromDate, out var f))
+            {
+                from = f;
+            }
+            if (!string.IsNullOrWhiteSpace(toDate) && DateTimeOffset.TryParse(toDate, out var t))
+            {
+                to = t;
+            }
+
+            return a =>
+                (string.IsNullOrWhiteSpace(shopId) || a.ShopId == shopId) &&
+                (from == null || a.StartTime >= from.Value.DateTime) &&
+                (to == null || a.StartTime <= to.Value.DateTime) &&
+                (statusFilter == null || a.Status == statusFilter);
+        }
+    }
+
+    
 }
