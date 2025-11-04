@@ -35,14 +35,56 @@ builder.Services.AddHttpContextAccessor();
 // Lấy DatabaseSettings từ configuration
 
 var config = builder.Configuration;
-DatabaseSettings dbSettings = new DatabaseSettings
+
+// Prefer DATABASE_URL if provided (e.g., on Koyeb): postgres://user:pass@host:port/dbname
+DatabaseSettings dbSettings;
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrWhiteSpace(databaseUrl))
 {
-    Ip       = config["DB_HOST"] ?? config["DatabaseSettings:Ip"],
-    Port     = int.TryParse(config["DB_PORT"], out var port) ? port : (config.GetSection("DatabaseSettings").GetValue<int?>("Port") ?? 5432),
-    User     = config["DB_USER"] ?? config["DatabaseSettings:User"],
-    Password = config["DB_PASSWORD"] ?? config["DatabaseSettings:Password"],
-    Database = config["DB_NAME"] ?? config["DatabaseSettings:Database"]
-};
+	try
+	{
+		var uri = new Uri(databaseUrl);
+		var userInfo = Uri.UnescapeDataString(uri.UserInfo);
+		var userPass = userInfo.Split(':', 2);
+		var user = userPass.Length > 0 ? userPass[0] : string.Empty;
+		var password = userPass.Length > 1 ? userPass[1] : string.Empty;
+		var host = uri.Host;
+		var port = uri.Port;
+		var database = uri.AbsolutePath.Trim('/');
+
+		dbSettings = new DatabaseSettings
+		{
+			Ip = host,
+			Port = port,
+			User = user,
+			Password = password,
+			Database = database
+		};
+	}
+	catch
+	{
+		// Fallback to individual env vars/appsettings if parsing fails
+		dbSettings = new DatabaseSettings
+		{
+			Ip       = config["DB_HOST"] ?? config["DatabaseSettings:Ip"],
+			Port     = int.TryParse(config["DB_PORT"], out var port) ? port : (config.GetSection("DatabaseSettings").GetValue<int?>("Port") ?? 5432),
+			User     = config["DB_USER"] ?? config["DatabaseSettings:User"],
+			Password = config["DB_PASSWORD"] ?? config["DatabaseSettings:Password"],
+			Database = config["DB_NAME"] ?? config["DatabaseSettings:Database"]
+		};
+	}
+}
+else
+{
+	dbSettings = new DatabaseSettings
+	{
+		Ip       = config["DB_HOST"] ?? config["DatabaseSettings:Ip"],
+		Port     = int.TryParse(config["DB_PORT"], out var port) ? port : (config.GetSection("DatabaseSettings").GetValue<int?>("Port") ?? 5432),
+		User     = config["DB_USER"] ?? config["DatabaseSettings:User"],
+		Password = config["DB_PASSWORD"] ?? config["DatabaseSettings:Password"],
+		Database = config["DB_NAME"] ?? config["DatabaseSettings:Database"]
+	};
+}
 dbSettings.Display();
 string connectionString = dbSettings?.GetConnectionString();
 
